@@ -18,7 +18,12 @@
 				Confirm Password:
 				<input type="text" password="true">
 			</view>
-			
+		</view>
+		
+		<button type="warn" class="btn">Sign Up</button>
+		
+		<view class="text">
+			Already have an account? &nbsp&nbsp  <span class="hyperlink" @click="changePageToLogIn"> Log in!</span>
 		</view>
 		
 		<!-- <hr/> -->
@@ -41,9 +46,9 @@
 
 		},
 		methods: {
-			changePage(){
+			changePageToLogIn(){
 				uni.navigateTo({
-				    url: '/pages/Main/main'
+				    url: '/pages/index/logIn'
 				});
 			}
 		}
@@ -51,7 +56,13 @@
 </script>
 
 <style>
-	
+	.btn {
+		margin-top: 15px;
+	}
+	.hyperlink {
+		color: #007AFF;
+		text-decoration: underline;
+	}
 	input {
 		border-bottom: #999999 solid 1px;
 	}
@@ -69,7 +80,7 @@
 		align-items: center;
 		justify-content: center; */
 		
-		padding: 10px;
+		padding: 20px;
 	}
 	
 	.headline {
