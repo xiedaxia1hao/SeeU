@@ -48,6 +48,8 @@
 
 <style>
 	.btn {
+		color: white;
+		background-color: rgb(7, 26, 78);
 		margin-top: 15px;
 	}
 	.hyperlink {
