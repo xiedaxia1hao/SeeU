@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib import auth
 from django.contrib.auth.models import User
 
+
 class RegisterForm(forms.Form):
     email = forms.CharField(max_length=255)
     password = forms.CharField(max_length=16,min_length=8)
@@ -20,3 +21,18 @@ class RegisterForm(forms.Form):
         if password != password_again:
             raise forms.ValidationError('Two passwords are not the same!')
         return password_again
+
+
+class LoginForm(forms.Form):
+    email = forms.CharField(max_length=255)
+    password = forms.CharField(max_length=16,min_length=8)
+    def clean(self):
+        email = self.cleaned_data['email']
+        password = self.cleaned_data['password']
+
+        user = auth.authenticate(email=email,password=password)
+        if user is None:
+            raise forms.ValidationError('email or password is wrong')
+        else:
+            self.cleaned_data['email']=user
+        return self.cleaned_data
