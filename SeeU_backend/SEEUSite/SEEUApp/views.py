@@ -2,17 +2,18 @@ from django.contrib import auth
 from django.views.decorators.http import require_http_methods
 from django.core import serializers
 from django.http import JsonResponse
-from .models import User_Account
+from .models import *
 from SEEUApp.forms import RegisterForm,LoginForm
 from django.contrib.auth.models import User
 import json
 # Create your views here.
 
+#The method for create one user
 @require_http_methods(["GET"])
 def add_user(request):
     response = {}
     try:
-        user = User_Account(userName=request.GET.get('userName'))
+        user = SEEU_User(userName=request.GET.get('userName'))
         user.save()
         response['msg'] = 'success'
         response['error_num'] = 0
@@ -21,11 +22,12 @@ def add_user(request):
         response['error_num'] = 1
     return JsonResponse(response)
 
+#Used to display all users
 @require_http_methods(["GET"])
 def show_users(request):
     response = {}
     try:
-        users = User_Account.objects.filter()
+        users =SEEU_User.objects.filter()
         response['list'] = json.loads(serializers.serialize("json", users))
         response['msg'] = 'success'
         response['error_num'] = 0
@@ -61,16 +63,6 @@ def user_register(request):
     return JsonResponse(response)
 
 
-    # try:
-    #     email = MyUser(email=request.POST.get('email'))
-    #     password = MyUser(password=request.POST.get('password'))
-    #     user = User.objects.create_user(email, password)
-    #     user.save()
-    #     response['msg'] = 'success'
-    #     response['error_num'] = 0
-    # except Exception as e:
-    #     response['msg'] = str(e)
-    #     response['error_num'] = 1
 
 def user_login(request):
     response = {}
@@ -92,42 +84,20 @@ def user_login(request):
 
     return JsonResponse(request,safe=False)
 
-# class UserAPIView(View):
-#     def post(request):
-#         json_bytes=request.body
-#         json_str=json_bytes.decode()
-#         user_dict=json.loads(json_str)
-#         user = MyUser.objects.create(
-#             email = user_dict.get('email'),
-#             password = user_dict.get('password')
-#         )
-#         return JsonResponse(
-#             {
-#
-#                 'email':user.email,
-#                 'password':user.password
-#
-#             },status=201 #user create successful
-#         )
+#method for show all the moments so far
+@require_http_methods(["GET"])
+def show_moments(request):
+    response ={}
+    try:
+        moments = SEEU_Moment.objects.order_by('-m_id')#desc order
+        response['list']=json.loads(serializers.serialize("json", moments))
+        response['msg'] = 'success'
+        response['error_num'] = 0
+    except Exception as e:
+        response['msg'] = str(e)
+        response['error_num'] = 1
+    return JsonResponse(response)
 
-
-# def user_register(request):
-#     response = {}
-#     registered = False
-#     try:
-#         if request.method =='POST':
-#             user_form = UserForm(data=request.POST)
-#             if user_form.is_valid():
-#                 user=user_form.save()
-#                 user.set_password(user.password)
-#                 user.save()
-#                 registered=True
-#                 response['msg'] = 'success'
-#                 response['error_num'] = 0
-#
-#             else:
-#                 print(user_form.errors)
-#     except Exception as e:
-#         response['msg'] = str(e)
-#         response['error_num'] = 1
-#     return JsonResponse(response)
+#once user login successfully show his info
+# @require_http_methods(["GET"])
+# def show_user_info(request):
