@@ -7,7 +7,15 @@
 		
 		<view class="signUpRegion">
 			<view class="inputArea">
-				Your Email:
+				Username:
+				<input type="text">
+			</view>
+			<view class="inputArea">
+				Sex:
+				<input type="text">
+			</view>
+			<view class="inputArea">
+				Your WKU Email:
 				<input type="text">
 			</view>
 			<view class="inputArea">

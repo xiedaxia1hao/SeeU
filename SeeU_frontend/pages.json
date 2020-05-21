@@ -15,6 +15,12 @@
 			"style": {
 				"navigationBarTitleText": "Main"
 			}
+		},
+		{
+			"path": "pages/Main/user",
+			"style": {
+				"navigationBarTitleText": "User"
+			}
 		}
 	    
     ],

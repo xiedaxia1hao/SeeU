@@ -42,12 +42,15 @@
 			<div class="headline">Publish</div>
 			<div class="greyArea">
 				<div class="addClip">
+					<button class="photoButton" @tap="videoCapture">+</button>
 					<div class="addClipFont">Add a new clip from gallery</div>
 				</div>
 			</div>
 			
-			<div class="locationAndMentionBox">
-				
+			<div class="locationAndMentionBox" @tap="chooseLocation">
+				<div class="locationBox">
+					> Location {{currentLocation}}
+				</div>
 			</div>
 			
 			<div class="btnBox">
@@ -93,17 +96,36 @@
 				</div>
 				
 			</div>
+			
+			<div class="SeeUID">SEEU ID: {{SeeUId}}</div>
+			<div>
+				
+				<div class="infoItem">
+					Name: 
+				</div>
+				
+				<div class="infoItem">
+					WKU Email:
+				</div>
+				
+				<div class="infoItem">
+					Contact:
+				</div>
+			</div>
 		</div>
 		
 	</view>
 </template>
 <script>
 import WucTab from '@/components/wuc-tab/wuc-tab.vue';
-import uniIcons from "@/components/uni-icons/uni-icons.vue"
+import uniIcons from "@/components/uni-icons/uni-icons.vue";
+
 
 	export default {
 		data() {
 			return {
+				src: "",
+				currentLocation: "",
 				currentPerson: {
 					name: 'Jack',
 					avatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589018623146&di=1b5e57c864ac277c937bfe856c65ab05&imgtype=0&src=http%3A%2F%2Fimg.mp.itc.cn%2Fupload%2F20170504%2F2a96413cccc64312a6329aed2e588b95_th.jpg',
@@ -111,7 +133,8 @@ import uniIcons from "@/components/uni-icons/uni-icons.vue"
 					FollowersNum: 87,
 					FollowingNum: 32
 				},
-				TabCur: 0,
+				SeeUId: 7758258,
+				TabCur: 0, 
 				tabList: [{ name: 'Moments', icon: 'cuIcon-comment' }, { name: 'Publish' }, { name: 'Me'}],
 				momentList: [
 					{
@@ -146,14 +169,78 @@ import uniIcons from "@/components/uni-icons/uni-icons.vue"
 		},
 		components: { WucTab, uniIcons},
 		methods: {
-			 tabChange(index) { 
+			chooseLocation() {
+				const that = this;
+				uni.chooseLocation({
+				    success: function (res) {
+						that.currentLocation = res.address; 
+						console.log(this.currentLocation);
+				        console.log('位置名称：' + res.name);
+				        console.log('详细地址：' + res.address);
+				        console.log('纬度：' + res.latitude);
+				        console.log('经度：' + res.longitude);
+				    }
+				})
+			},
+			tabChange(index) { 
 			    this.TabCur = index;
-			 },
+			},
+			// 摄像
+			videoCapture(){
+				var cmr = plus.camera.getCamera();
+				var res = cmr.supportedVideoResolutions[0];
+				var fmt = cmr.supportedVideoFormats[0];
+				console.log("Resolution: "+res+", Format: "+fmt);
+				cmr.startVideoCapture( function( path ){
+						alert( "Capture video success: " + path );  
+					},
+					function( error ) {
+						alert( "Capture video failed: " + error.message );
+					},
+					{resolution:res,format:fmt}
+				);
+				cmr.stopVideoCapture();
+				
+			},
+
+			
 		}
 	}
 </script>
 
 <style>
+	.infoItem {
+		padding: 10px;
+		border-bottom: rgb(153, 153, 153) 0.5px dashed;
+		font-size: 16px;
+	}
+	.SeeUID {
+		margin-top: 40px;
+		font-size: 14px;
+		padding: 5px;
+		color: rgb(153, 153, 153);
+		border-bottom: rgb(153, 153, 153) 1px solid;
+	}
+	.locationAndMentionBox {
+		font-size: 16px;
+		margin-top: 30px;
+		border-bottom: rgb(153, 153, 153) 1px solid;
+		padding: 5px;
+	}
+	.locationBox {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+	.photoButton {
+		font-size: 50px;
+		font-weight: 800;
+		height: 130px;
+		width: 130px;
+		border-radius: 100%;
+		background-color: rgb(153, 153, 153);
+		color: white;
+	}
 	.type {
 		font-size: 13px;
 		font-weight: 400;
@@ -192,7 +279,7 @@ import uniIcons from "@/components/uni-icons/uni-icons.vue"
 		font-weight: bold;
 	}
 	.btnBox {
-		margin-top: 30px;
+		margin-top: 50px;
 		display: flex;
 		justify-content: flex-start;
 	}
@@ -206,9 +293,13 @@ import uniIcons from "@/components/uni-icons/uni-icons.vue"
 	}
 	.addClipFont {
 		font-size: 14px;
+		text-align: center;
+		margin-top: 10px;
 	}
 	.greyArea {
-		margin-top: 20px;
+		/* margin-top: 20px; */
+		display: flex;
+		align-items: center;
 		height: 200px;
 		background-color: rgb(238, 238, 238);
 	}
