@@ -7,9 +7,10 @@ from .models import *
 from SEEUApp.forms import RegisterForm,LoginForm
 from django.contrib.auth.models import User
 import json
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .SEEUserializers import MomentPublishSerializer
+from .SEEUserializers import MomentPublishSerializer,UserSerializer
 # Create your views here.
 
 #The method for create one user
@@ -19,20 +20,6 @@ def add_user(request):
     try:
         user = SEEU_User(userName=request.GET.get('userName'))
         user.save()
-        response['msg'] = 'success'
-        response['error_num'] = 0
-    except  Exception as e:
-        response['msg'] = str(e)
-        response['error_num'] = 1
-    return JsonResponse(response)
-
-#Used to display all users
-@require_http_methods(["GET"])
-def show_users(request):
-    response = {}
-    try:
-        users =SEEU_User.objects.filter()
-        response['list'] = json.loads(serializers.serialize("json", users))
         response['msg'] = 'success'
         response['error_num'] = 0
     except  Exception as e:
@@ -67,7 +54,6 @@ def user_register(request):
     return JsonResponse(response)
 
 
-
 def user_login(request):
     response = {}
     if request.method =='POST':
@@ -88,19 +74,6 @@ def user_login(request):
 
     return JsonResponse(request,safe=False)
 
-#method for show all the moments so far, interface 3
-@require_http_methods(["GET"])
-def show_moments(request):
-    response ={}
-    try:
-        moments = SEEU_Moment.objects.order_by('-m_id')#desc order
-        response['list']=json.loads(serializers.serialize("json", moments))
-        response['msg'] = 'success'
-        response['error_num'] = 0
-    except Exception as e:
-        response['msg'] = str(e)
-        response['error_num'] = 1
-    return JsonResponse(response)
 
 #once user login successfully show his info
 @login_required(login_url="/pages/index/logIn")
@@ -117,14 +90,25 @@ def show_userInfo(request,id):
         response['error_num'] = 1
     return JsonResponse(response)
 
-#interface 2
+
 class MomentPublishView(APIView):
-    #序列化输出
+    #method for show all the moments so far, interface 3
     def get(self,request,format=None):
-        moments = SEEU_Moment.objects.all()
+        moments = SEEU_Moment.objects.order_by('-m_id')
         moments_serializer = MomentPublishSerializer(moments,many=True)
-        return Response(moments_serializer.data)
+        return Response(moments_serializer.data,status=status.HTTP_200_OK)
+    # interface 2
+    def post(self,request,format=None):
+        moment_serializer = MomentPublishSerializer(data=request.data)
+        if moment_serializer.is_valid():
+            moment_serializer.save()
+            return Response(moment_serializer.data,status= status.HTTP_201_CREATED)
+        return Response(moment_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
+class ShowUserView(APIView):
+    def get(self,request,format=None):
+        users = SEEU_User.objects.all()
+        users_serializer = UserSerializer(users,many=True)
+        return Response(users_serializer.data,status=status.HTTP_200_OK)
 
-
-
+# class UserViewSet()
