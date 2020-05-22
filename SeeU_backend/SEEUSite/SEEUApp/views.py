@@ -1,11 +1,15 @@
 from django.contrib import auth
 from django.views.decorators.http import require_http_methods
 from django.core import serializers
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import *
 from SEEUApp.forms import RegisterForm,LoginForm
 from django.contrib.auth.models import User
 import json
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .SEEUserializers import MomentPublishSerializer
 # Create your views here.
 
 #The method for create one user
@@ -46,15 +50,15 @@ def user_register(request):
             if reg_form.is_valid():
                 email = reg_form.cleaned_data['email']
                 password = reg_form.cleaned_data['password']
-                #创建用户
+                #create user
                 user = User.objects.create_user(email,password)
                 user.save()
                 response['msg']= 'success'
                 response['error_num'] = 0
-                #注册完后登录
+                #login after sign up
                 user = auth.authenticate(email=email,password=password)
                 auth.login(request,user)
-                #redirect 将在合在一起后调用
+                #redirect
                 #return redirect('http://localhost:8080/#/pages/Main/main')
         except Exception as e:
             response['msg'] =str(e)
@@ -84,7 +88,7 @@ def user_login(request):
 
     return JsonResponse(request,safe=False)
 
-#method for show all the moments so far
+#method for show all the moments so far, interface 3
 @require_http_methods(["GET"])
 def show_moments(request):
     response ={}
@@ -99,5 +103,28 @@ def show_moments(request):
     return JsonResponse(response)
 
 #once user login successfully show his info
-# @require_http_methods(["GET"])
-# def show_user_info(request):
+@login_required(login_url="/pages/index/logIn")
+@require_http_methods(["GET"])
+def show_userInfo(request,id):
+    response = {}
+    try:
+        specific_user = SEEU_User.objects.filter(id=id).values("username","clips","followers","followings")
+        response['list'] = json.loads(serializers.serialize("json", specific_user))
+        response['msg'] = 'success'
+        response['error_num'] = 0
+    except Exception as e:
+        response['msg'] = str(e)
+        response['error_num'] = 1
+    return JsonResponse(response)
+
+#interface 2
+class MomentPublishView(APIView):
+    #序列化输出
+    def get(self,request,format=None):
+        moments = SEEU_Moment.objects.all()
+        moments_serializer = MomentPublishSerializer(moments,many=True)
+        return Response(moments_serializer.data)
+
+
+
+
