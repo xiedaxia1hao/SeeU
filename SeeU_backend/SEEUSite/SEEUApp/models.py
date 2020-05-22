@@ -10,9 +10,9 @@ class SEEU_User(models.Model):
     username = models.CharField(max_length=255)
     email = models.EmailField()
     password = models.CharField(max_length=16, validators=[MinLengthValidator(8)])
-    clips = models.IntegerField()
-    followings = models.IntegerField()
-    followers = models.IntegerField()
+    clips = models.IntegerField(default=0)
+    followings = models.IntegerField(default=0)
+    followers = models.IntegerField(default=0)
     sex = models.CharField(max_length=10)
 
     def __unicode__(self):
