@@ -8,3 +8,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = SEEU_User
         fields ="__all__"
+
+class UserRegister(serializers.ModelSerializer):
+
+    class Meta:
+        model = SEEU_User
+        fields = ['email', 'password']
+
+class MomentCreate(serializers.ModelSerializer):
+    class Meta:
+        model = SEEU_Moment
+        fields = ['video_url','location','u_id']

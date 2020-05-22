@@ -16,9 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url,include
-
+from rest_framework.routers import DefaultRouter
 import SEEUApp.urls
 from rest_framework.documentation import include_docs_urls
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^api/', include(SEEUApp.urls)),#SEEU API include
