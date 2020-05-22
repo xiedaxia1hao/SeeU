@@ -78,9 +78,9 @@ WSGI_APPLICATION = 'SEEUSite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'seeu',
+        'NAME': 'mysql',
         'USER':'root',
-        'PASSWORD':'123456',
+        'PASSWORD':'',
         'HOST':'127.0.0.1'
     }
 }
