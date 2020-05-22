@@ -7,25 +7,13 @@ from .models import *
 from SEEUApp.forms import RegisterForm,LoginForm
 from django.contrib.auth.models import User
 import json
-from rest_framework import status
+from rest_framework import status,viewsets
 from rest_framework.views import APIView
+from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
-from .SEEUserializers import MomentPublishSerializer,UserSerializer
+from .SEEUserializers import *
 # Create your views here.
 
-#The method for create one user
-@require_http_methods(["GET"])
-def add_user(request):
-    response = {}
-    try:
-        user = SEEU_User(userName=request.GET.get('userName'))
-        user.save()
-        response['msg'] = 'success'
-        response['error_num'] = 0
-    except  Exception as e:
-        response['msg'] = str(e)
-        response['error_num'] = 1
-    return JsonResponse(response)
 
 # @require_http_methods(["POST"])
 def user_register(request):
@@ -92,18 +80,11 @@ def show_userInfo(request,id):
 
 
 class MomentPublishView(APIView):
-    #method for show all the moments so far, interface 3
+    #method for show all the moments so far, interface 2
     def get(self,request,format=None):
         moments = SEEU_Moment.objects.order_by('-m_id')
         moments_serializer = MomentPublishSerializer(moments,many=True)
         return Response(moments_serializer.data,status=status.HTTP_200_OK)
-    # interface 2
-    def post(self,request,format=None):
-        moment_serializer = MomentPublishSerializer(data=request.data)
-        if moment_serializer.is_valid():
-            moment_serializer.save()
-            return Response(moment_serializer.data,status= status.HTTP_201_CREATED)
-        return Response(moment_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class ShowUserView(APIView):
     def get(self,request,format=None):
@@ -111,4 +92,9 @@ class ShowUserView(APIView):
         users_serializer = UserSerializer(users,many=True)
         return Response(users_serializer.data,status=status.HTTP_200_OK)
 
-# class UserViewSet()
+class UserViewSet(CreateModelMixin,viewsets.GenericViewSet):
+
+    serializer_class = UserRegister
+
+class MomentCreateView(CreateModelMixin,viewsets.GenericViewSet):
+    serializer_class = MomentCreate
