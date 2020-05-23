@@ -32,7 +32,7 @@ if 'uid' in request.GET:
 
 #Used to display all moments of a special user
 @require_http_methods(["GET"])
-def show_certain_user(request):
+def show_certain_moment(request):
     response = {}
 
 if 'uid' in request.GET:
