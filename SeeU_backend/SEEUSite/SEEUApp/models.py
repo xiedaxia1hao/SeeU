@@ -8,8 +8,8 @@ from django.core.validators import MinLengthValidator
 class SEEU_User(models.Model):
     u_id = models.AutoField(db_column='uid', primary_key=True)
     username = models.CharField(max_length=255)
-    email = models.EmailField()
-    password = models.CharField(max_length=16, validators=[MinLengthValidator(8)])
+    email = models.EmailField(blank=False)
+    password = models.CharField(blank=False,max_length=16, validators=[MinLengthValidator(8)])
     clips = models.IntegerField(default=0)
     followings = models.IntegerField(default=0)
     followers = models.IntegerField(default=0)

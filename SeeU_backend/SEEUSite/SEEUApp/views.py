@@ -1,6 +1,8 @@
 from django.contrib import auth
 from django.views.decorators.http import require_http_methods
 from django.core import serializers
+from django.shortcuts import render
+from django.contrib.sessions import serializers
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import *
@@ -12,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
 from .SEEUserializers import *
+from rest_framework_jwt.serializers import jwt_encode_handler,jwt_payload_handler
 # Create your views here.
 
 
@@ -42,6 +45,7 @@ def user_register(request):
     return JsonResponse(response)
 
 
+
 def user_login(request):
     response = {}
     if request.method =='POST':
@@ -64,19 +68,14 @@ def user_login(request):
 
 
 #once user login successfully show his info
-@login_required(login_url="/pages/index/logIn")
-@require_http_methods(["GET"])
-def show_userInfo(request,id):
-    response = {}
-    try:
-        specific_user = SEEU_User.objects.filter(id=id).values("username","clips","followers","followings")
-        response['list'] = json.loads(serializers.serialize("json", specific_user))
-        response['msg'] = 'success'
-        response['error_num'] = 0
-    except Exception as e:
-        response['msg'] = str(e)
-        response['error_num'] = 1
-    return JsonResponse(response)
+# @login_required(login_url="/pages/index/logIn")
+def show_specific_user(request,u_id):
+    obj = SEEU_User.objects.get(u_id=u_id)
+
+    context= {
+        "object":obj
+    }
+    return render(request,"test.html",context)
 
 
 class MomentPublishView(APIView):
@@ -95,6 +94,34 @@ class ShowUserView(APIView):
 class UserViewSet(CreateModelMixin,viewsets.GenericViewSet):
 
     serializer_class = UserRegister
+    queryset = SEEU_User.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = self.perform_create(serializer)
+
+        re_dict = serializer.data
+        payload = jwt_payload_handler(user)
+        re_dict["token"] = jwt_encode_handler(payload)
+        re_dict["email"] = user.email
+        #frontend can get the token
+        headers = self.get_success_headers(serializer.data)
+        return Response(re_dict, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        return serializer.save()
 
 class MomentCreateView(CreateModelMixin,viewsets.GenericViewSet):
     serializer_class = MomentCreate
+
+class UserLogViewSet(CreateModelMixin,viewsets.GenericViewSet):
+    serializer_class = UserLogin
+    queryset = SEEU_User.objects.all()
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        res = UserLogin(data=data)
+        if res.is_valid():
+            return Response(res.validated_data)
+        return Response(res.errors)
+
